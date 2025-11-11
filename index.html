@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>강남게임즈</title>
+    <title>강남게임즈2</title>
     <style>
         body { 
             font-family: sans-serif; 
@@ -25,13 +25,31 @@
             z-index: 10;
         }
 
-        /* ★★★ 유튜브 영상 컨테이너 (새로 추가) ★★★ */
+        /* ★★★ 유튜브 영상 컨테이너 (수정됨) ★★★ */
         .video-container {
-            /* <h1>처럼 가운데 정렬 */
-            text-align: center; 
             position: relative;
-            z-index: 9; /* 제목(10)과 배경(3) 사이 */
-            margin-bottom: 10px; /* 영상 아래쪽 여백 */
+            z-index: 9; 
+            margin-bottom: 10px;
+            
+            /* ★★★ 폰에서는 90% 너비, PC에서는 최대 420px ★★★ */
+            width: 90%; 
+            max-width: 420px; 
+            
+            margin-left: auto;  /* 가운데 정렬 */
+            margin-right: auto; /* 가운데 정렬 */
+
+            /* 영상 16:9 비율 유지 */
+            padding-top: 56.19%; /* ( 236 / 420 ) * 100 */
+            height: 0; 
+        }
+        
+        /* 컨테이너 안의 iframe */
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
         
         .cloud {
@@ -95,13 +113,11 @@
             animation: slide-mountain-left 30s linear infinite;
         }
         
-        /* 산 롤링 */
         @keyframes slide-mountain-left {
             from { background-position: 0 0; }
             to { background-position: -768px 0; }
         }
         
-        /* 땅 롤링 (48px 너비 기준, 1.25초) */
         @keyframes slide-land-left {
             from { background-position: 0 0; }
             to { background-position: -48px 0; }
@@ -113,8 +129,6 @@
 
     <div class="video-container">
         <iframe 
-            width="420" 
-            height="236" 
             src="https://www.youtube.com/embed/fVpLeLf1vSo?autoplay=1&mute=1" 
             title="YouTube video player" 
             frameborder="0" 
@@ -229,7 +243,7 @@
             let position = parseInt(cat.style.left);
             let frameIndex = 0;
             const frameSequence = [0, 1, 2, 1]; 
-            const framePositions = [0, -54, -108]; // 3배 확대된 프레임 위치
+            const framePositions = [0, -54, -108]; 
             
             let isJumping = false;
             let jumpHeight = 0;
@@ -241,22 +255,19 @@
             const animationSpeed = 8; 
 
             const move = setInterval(() => {
-                // 1. 이동
                 position += CAT_SPEED;
                 cat.style.left = position + 'px';
                 
-                // 2. 랜덤 점프 시작
                 if (!isJumping && Math.random() < 0.02) {
                     isJumping = true;
                     jumpVelocity = jumpPower;
                 }
                 
-                // 3. 점프 물리 처리
                 if (isJumping) {
                     jumpVelocity += gravity;
                     jumpHeight += jumpVelocity;
                     
-                    if (jumpHeight >= 0) { // 땅에 닿으면
+                    if (jumpHeight >= 0) { 
                         jumpHeight = 0;
                         isJumping = false;
                         jumpVelocity = 0;
@@ -265,7 +276,6 @@
                     cat.style.bottom = (88 - jumpHeight) + 'px';
                 }
                 
-                // 4. 걷기 애니메이션 (점프 여부와 상관없이 항상 실행)
                 animationCounter++;
                 if (animationCounter >= animationSpeed) {
                     animationCounter = 0;
@@ -274,7 +284,6 @@
                     cat.style.backgroundPosition = framePositions[frame] + 'px 0';
                 }
                 
-                // 5. 화면 밖으로 나가면 삭제
                 if (position > window.innerWidth + 50) {
                     clearInterval(move);
                     cat.remove();
@@ -299,7 +308,7 @@
         }
 
         function scheduleNextCat() {
-            const nextDelay = (Math.random() * 8000 + 5000) * 1.5; // 빈도 50% 감소
+            const nextDelay = (Math.random() * 8000 + 5000) * 1.5; 
             setTimeout(() => {
                 createCat();
                 scheduleNextCat();
@@ -308,28 +317,24 @@
 
         // --- 초기화 ---
         
-        // 초기 구름 생성
         const initialClouds = Math.floor(Math.random() * 4) + 5;
         for (let i = 0; i < initialClouds; i++) {
             const randomX = Math.random() * window.innerWidth;
             createCloud(randomX);
         }
 
-        // 초기 나무 생성
         const initialTrees = Math.floor(Math.random() * 6) + 7;
         for (let i = 0; i < initialTrees; i++) {
             const randomX = Math.random() * window.innerWidth;
             createTree(randomX);
         }
 
-        // 초기 고양이 생성
         const initialCats = Math.floor(Math.random() * 3);
         for (let i = 0; i < initialCats; i++) {
             const randomX = Math.random() * window.innerWidth - 100;
             createCat(randomX);
         }
 
-        // 스케줄러 시작
         scheduleNextCloud();
         scheduleNextTree();
         scheduleNextCat();
