@@ -3,45 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>내 영상 모음</title>
-    <style>
-    body { 
-        font-family: sans-serif; 
-        margin: 40px; 
+    
+    <title>강남게임즈</title>
 
-        /* --- 이 부분을 추가하세요 --- */
-        background-image: url('background.png');
-        background-size: cover; /* 이미지가 화면을 꽉 채우도록 함 */
-        background-repeat: no-repeat; /* 이미지가 반복되지 않도록 함 */
-        background-attachment: fixed; /* 스크롤해도 배경이 고정됨 */
-    }
-    h1 { color: #333; }
+    <style>
+        /* 1. 기본 배경화면 스타일 */
+        body { 
+            font-family: sans-serif; 
+            margin: 40px; 
+            background-image: url('background.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            
+            /* 중요: 하단 롤링 산에 콘텐츠가 가려지지 않도록 여백 추가 */
+            /* 이 값은 .scrolling-mountain의 height보다 커야 합니다. */
+            padding-bottom: 200px; 
+        }
+
+        /* 2. 메인 제목 스타일 (수정됨) */
+        h1 { 
+            color: #FFFFFF; /* 배경이 어두울 수 있으니 흰색으로 변경 */
+            text-align: center;
+            text-shadow: 2px 2px 4px #000000; /* 배경과 잘보이게 그림자 추가 */
+        }
+
+        /* 3. 롤링 마운틴 스타일 (새로 추가) */
+        .scrolling-mountain {
+            position: fixed; /* 화면 하단에 고정 */
+            bottom: 0;
+            left: 0;
+            width: 100%; /* 좌우 꽉차게 */
+            
+            /* * ★ 중요 ★
+             * 이 height 값은 mountain.png 이미지의 비율에 맞게 조절해야 합니다.
+             * (예: 100px, 250px 등)
+             */
+            height: 150px; 
+            
+            background-image: url('mountain.png');
+            background-repeat: repeat-x; /* x축으로 무한 반복 */
+            
+            /* * 비율 유지: 이미지 높이를 컨테이너 높이(150px)에 맞추고,
+             * 너비는 원본 비율에 맞게 'auto'로 자동 설정됩니다.
+             */
+            background-size: auto 100%; 
+            
+            /* 애니메이션 적용 (30초 동안, 끊김 없이, 무한 반복) */
+            animation: slide-left 30s linear infinite;
+        }
+
+        /* 4. 롤링 애니메이션 정의 (새로 추가) */
+        @keyframes slide-left {
+            0% {
+                /* (0, 0) 위치에서 시작 */
+                background-position: 0 0;
+            }
+            100% {
+                /* * ★ 중요 ★
+                 * 이 -1920px 값은 mountain.png의 '원본 가로 너비'여야 합니다.
+                 * * 만약 mountain.png 파일의 원본 너비가 1000px이라면,
+                 * 여기를 -1000px 로 바꿔야 자연스럽게 연결됩니다.
+                 * (1920px은 일반적인 배경 이미지 크기 예시입니다.)
+                 */
+                background-position: -1920px 0; 
+            }
+        }
     </style>
 </head>
 <body>
 
-    <h1>🎬 내가 좋아하는 유튜브 영상</h1>
+    <h1>강남게임즈</h1>
 
-    <div class="video-wrapper">
-        <h2>영상 제목 1</h2>
-        <iframe width="560" height="315" 
-            src="https://www.youtube.com/embed/VIDEO_ID_1" 
-            title="YouTube video player" frameborder="0" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-            allowfullscreen>
-        </iframe>
-    </div>
-
-    <div class="video-wrapper">
-        <h2>영상 제목 2</h2>
-        <iframe width="560" height="315" 
-            src="https://www.youtube.com/embed/VIDEO_ID_2" 
-            title="YouTube video player" frameborder="0" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-            allowfullscreen>
-        </iframe>
-    </div>
+    <div class="scrolling-mountain"></div>
 
 </body>
-
 </html>
