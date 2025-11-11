@@ -48,6 +48,18 @@
             object-fit: contain;
         }
         
+        .cat {
+            position: fixed;
+            pointer-events: none;
+            bottom: 88px;
+            z-index: 5;
+            width: 18px;
+            height: 15px;
+            background-repeat: no-repeat;
+            background-size: 54px 15px;
+            image-rendering: pixelated;
+        }
+        
         .tiled-land {
             position: fixed; 
             bottom: 0;
@@ -105,10 +117,18 @@
             'tree4.png'
         ];
 
+        const catTypes = [
+            'cat1.png',
+            'cat2.png',
+            'cat3.png',
+            'cat4.png'
+        ];
+
         const LAND_SPEED = 16;
         const LAND_MOVE_PX = 0.6144;
+        const CAT_SPEED = 0.5; // 고양이 이동 속도
 
-        function createCloud() {
+        function createCloud(startPosition = null) {
             const type = cloudTypes[Math.floor(Math.random() * cloudTypes.length)];
             
             const cloud = document.createElement('div');
@@ -120,14 +140,14 @@
             
             const randomY = Math.random() * 40 + 20;
             cloud.style.top = randomY + '%';
-            cloud.style.left = window.innerWidth + 'px';
+            cloud.style.left = (startPosition !== null ? startPosition : window.innerWidth) + 'px';
             
             document.body.appendChild(cloud);
             animateCloud(cloud, type.speed);
         }
 
         function animateCloud(cloud, speed) {
-            let position = window.innerWidth;
+            let position = parseInt(cloud.style.left);
             
             const move = setInterval(() => {
                 position -= 1;
@@ -150,7 +170,6 @@
             img.src = treeSrc;
             tree.appendChild(img);
             
-            // startPosition이 있으면 그 위치에서, 없으면 오른쪽 바깥에서 시작
             tree.style.left = (startPosition !== null ? startPosition : window.innerWidth) + 'px';
             
             document.body.appendChild(tree);
@@ -171,8 +190,79 @@
             }, LAND_SPEED);
         }
 
+        function createCat(startPosition = null) {
+            const catSrc = catTypes[Math.floor(Math.random() * catTypes.length)];
+            
+            const cat = document.createElement('div');
+            cat.className = 'cat';
+            cat.style.backgroundImage = `url('${catSrc}')`;
+            cat.style.left = (startPosition !== null ? startPosition : -50) + 'px';
+            
+            document.body.appendChild(cat);
+            animateCat(cat);
+        }
+
+        function animateCat(cat) {
+            let position = parseInt(cat.style.left);
+            let frameIndex = 0;
+            const frameSequence = [0, 1, 2, 1]; // 0→1→2→1 반복
+            const framePositions = [0, -18, -36]; // 각 프레임의 x 위치
+            
+            let isJumping = false;
+            let jumpHeight = 0;
+            let jumpVelocity = 0;
+            const gravity = 0.5;
+            const jumpPower = -8;
+            
+            // 애니메이션 간격
+            let animationCounter = 0;
+            const animationSpeed = 8; // 프레임 전환 속도
+
+            const move = setInterval(() => {
+                // 이동
+                position += CAT_SPEED;
+                cat.style.left = position + 'px';
+                
+                // 랜덤 점프 (5% 확률)
+                if (!isJumping && Math.random() < 0.02) {
+                    isJumping = true;
+                    jumpVelocity = jumpPower;
+                }
+                
+                // 점프 처리
+                if (isJumping) {
+                    jumpVelocity += gravity;
+                    jumpHeight += jumpVelocity;
+                    
+                    if (jumpHeight >= 0) {
+                        jumpHeight = 0;
+                        isJumping = false;
+                        jumpVelocity = 0;
+                    }
+                    
+                    cat.style.bottom = (88 - jumpHeight) + 'px';
+                    // 점프 중에는 1번 프레임 고정
+                    cat.style.backgroundPosition = framePositions[1] + 'px 0';
+                } else {
+                    // 걷기 애니메이션 (0→1→2→1)
+                    animationCounter++;
+                    if (animationCounter >= animationSpeed) {
+                        animationCounter = 0;
+                        frameIndex = (frameIndex + 1) % frameSequence.length;
+                        const frame = frameSequence[frameIndex];
+                        cat.style.backgroundPosition = framePositions[frame] + 'px 0';
+                    }
+                }
+                
+                // 화면 오른쪽 바깥으로 나가면 삭제
+                if (position > window.innerWidth + 50) {
+                    clearInterval(move);
+                    cat.remove();
+                }
+            }, 20);
+        }
+
         function scheduleNextTree() {
-            // 더 랜덤한 간격: 1~6초
             const nextDelay = Math.random() * 5000 + 1000;
             setTimeout(() => {
                 createTree();
@@ -180,27 +270,46 @@
             }, nextDelay);
         }
 
-        // 초기 구름 생성
-        const initialClouds = Math.floor(Math.random() * 3) + 3;
-        for (let i = 0; i < initialClouds; i++) {
-            setTimeout(() => createCloud(), i * 2000);
+        function scheduleNextCloud() {
+            const nextDelay = Math.random() * 5000 + 5000;
+            setTimeout(() => {
+                createCloud();
+                scheduleNextCloud();
+            }, nextDelay);
         }
 
-        // 주기적으로 새 구름 생성
-        setInterval(() => {
-            createCloud();
-        }, Math.random() * 5000 + 5000);
+        function scheduleNextCat() {
+            const nextDelay = Math.random() * 8000 + 5000; // 5~13초
+            setTimeout(() => {
+                createCat();
+                scheduleNextCat();
+            }, nextDelay);
+        }
 
-        // 초기 나무 생성 (화면 안에 랜덤 배치, 7~12개)
+        // 초기 구름 생성
+        const initialClouds = Math.floor(Math.random() * 4) + 5;
+        for (let i = 0; i < initialClouds; i++) {
+            const randomX = Math.random() * window.innerWidth;
+            createCloud(randomX);
+        }
+
+        // 초기 나무 생성
         const initialTrees = Math.floor(Math.random() * 6) + 7;
         for (let i = 0; i < initialTrees; i++) {
-            // 화면 너비 안에 랜덤 배치
             const randomX = Math.random() * window.innerWidth;
             createTree(randomX);
         }
 
-        // 랜덤 간격으로 새 나무 생성 시작
+        // 초기 고양이 생성 (0~2마리)
+        const initialCats = Math.floor(Math.random() * 3);
+        for (let i = 0; i < initialCats; i++) {
+            const randomX = Math.random() * window.innerWidth - 100;
+            createCat(randomX);
+        }
+
+        scheduleNextCloud();
         scheduleNextTree();
+        scheduleNextCat();
     </script>
 </body>
 </html>
