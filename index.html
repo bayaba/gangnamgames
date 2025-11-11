@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>강남게임즈2</title>
+    <title>강남게임즈</title>
     <style>
         body { 
             font-family: sans-serif; 
@@ -23,6 +23,15 @@
             text-shadow: 2px 2px 4px #000000;
             position: relative;
             z-index: 10;
+        }
+
+        /* ★★★ 유튜브 영상 컨테이너 (새로 추가) ★★★ */
+        .video-container {
+            /* <h1>처럼 가운데 정렬 */
+            text-align: center; 
+            position: relative;
+            z-index: 9; /* 제목(10)과 배경(3) 사이 */
+            margin-bottom: 10px; /* 영상 아래쪽 여백 */
         }
         
         .cloud {
@@ -48,16 +57,15 @@
             object-fit: contain;
         }
         
-        /* ★★★ 고양이 3배 확대 (CSS) */
         .cat {
             position: fixed;
             pointer-events: none;
             bottom: 88px;
             z-index: 5;
-            width: 54px;  /* 18px * 3 */
-            height: 45px; /* 15px * 3 */
+            width: 54px;
+            height: 45px;
             background-repeat: no-repeat;
-            background-size: 162px 45px; /* (54px * 3) (15px * 3) */
+            background-size: 162px 45px;
             image-rendering: pixelated;
         }
         
@@ -71,8 +79,7 @@
             background-repeat: repeat-x; 
             background-size: 48px 88px;
             z-index: 3;
-            /* ★★★ 땅 롤링 속도 수정 (1.7초) */
-            animation: slide-land-left 1.7s linear infinite;
+            animation: slide-land-left 1.25s linear infinite;
         }
         
         .scrolling-mountain {
@@ -94,7 +101,7 @@
             to { background-position: -768px 0; }
         }
         
-        /* ★★★ 땅 롤링 (48px 너비 기준) */
+        /* 땅 롤링 (48px 너비 기준, 1.25초) */
         @keyframes slide-land-left {
             from { background-position: 0 0; }
             to { background-position: -48px 0; }
@@ -103,6 +110,18 @@
 </head>
 <body>
     <h1>강남게임즈</h1>
+
+    <div class="video-container">
+        <iframe 
+            width="420" 
+            height="236" 
+            src="https://www.youtube.com/embed/fVpLeLf1vSo?autoplay=1&mute=1" 
+            title="YouTube video player" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+        </iframe>
+    </div>
     
     <div class="scrolling-mountain"></div>
     <div class="tiled-land"></div>
@@ -130,7 +149,7 @@
 
         const LAND_SPEED = 16;
         const LAND_MOVE_PX = 0.6144;
-        const CAT_SPEED = 0.5; // 고양이 이동 속도
+        const CAT_SPEED = 0.5; 
 
         function createCloud(startPosition = null) {
             const type = cloudTypes[Math.floor(Math.random() * cloudTypes.length)];
@@ -209,10 +228,8 @@
         function animateCat(cat) {
             let position = parseInt(cat.style.left);
             let frameIndex = 0;
-            const frameSequence = [0, 1, 2, 1]; // 0→1→2→1 반복
-            
-            // ★★★ 고양이 3배 확대 (JS 프레임 위치)
-            const framePositions = [0, -54, -108]; // 0, -18*3, -36*3
+            const frameSequence = [0, 1, 2, 1]; 
+            const framePositions = [0, -54, -108]; // 3배 확대된 프레임 위치
             
             let isJumping = false;
             let jumpHeight = 0;
@@ -221,45 +238,43 @@
             const jumpPower = -8;
             
             let animationCounter = 0;
-            const animationSpeed = 8; // 프레임 전환 속도
+            const animationSpeed = 8; 
 
             const move = setInterval(() => {
-                // 이동
+                // 1. 이동
                 position += CAT_SPEED;
                 cat.style.left = position + 'px';
                 
-                // 랜덤 점프 (2%)
+                // 2. 랜덤 점프 시작
                 if (!isJumping && Math.random() < 0.02) {
                     isJumping = true;
                     jumpVelocity = jumpPower;
                 }
                 
-                // 점프 처리
+                // 3. 점프 물리 처리
                 if (isJumping) {
                     jumpVelocity += gravity;
                     jumpHeight += jumpVelocity;
                     
-                    if (jumpHeight >= 0) {
+                    if (jumpHeight >= 0) { // 땅에 닿으면
                         jumpHeight = 0;
                         isJumping = false;
                         jumpVelocity = 0;
                     }
                     
                     cat.style.bottom = (88 - jumpHeight) + 'px';
-                    // 점프 중 1번 프레임 고정
-                    cat.style.backgroundPosition = framePositions[1] + 'px 0';
-                } else {
-                    // 걷기 애니메이션
-                    animationCounter++;
-                    if (animationCounter >= animationSpeed) {
-                        animationCounter = 0;
-                        frameIndex = (frameIndex + 1) % frameSequence.length;
-                        const frame = frameSequence[frameIndex];
-                        cat.style.backgroundPosition = framePositions[frame] + 'px 0';
-                    }
                 }
                 
-                // 화면 밖으로 나가면 삭제
+                // 4. 걷기 애니메이션 (점프 여부와 상관없이 항상 실행)
+                animationCounter++;
+                if (animationCounter >= animationSpeed) {
+                    animationCounter = 0;
+                    frameIndex = (frameIndex + 1) % frameSequence.length;
+                    const frame = frameSequence[frameIndex];
+                    cat.style.backgroundPosition = framePositions[frame] + 'px 0';
+                }
+                
+                // 5. 화면 밖으로 나가면 삭제
                 if (position > window.innerWidth + 50) {
                     clearInterval(move);
                     cat.remove();
@@ -284,14 +299,15 @@
         }
 
         function scheduleNextCat() {
-            // ★★★ 고양이 빈도 50% 감소 (딜레이 1.5배)
-            const nextDelay = (Math.random() * 8000 + 5000) * 1.5; // 7.5~19.5초
+            const nextDelay = (Math.random() * 8000 + 5000) * 1.5; // 빈도 50% 감소
             setTimeout(() => {
                 createCat();
                 scheduleNextCat();
             }, nextDelay);
         }
 
+        // --- 초기화 ---
+        
         // 초기 구름 생성
         const initialClouds = Math.floor(Math.random() * 4) + 5;
         for (let i = 0; i < initialClouds; i++) {
@@ -306,7 +322,7 @@
             createTree(randomX);
         }
 
-        // 초기 고양이 생성 (0~2마리)
+        // 초기 고양이 생성
         const initialCats = Math.floor(Math.random() * 3);
         for (let i = 0; i < initialCats; i++) {
             const randomX = Math.random() * window.innerWidth - 100;
