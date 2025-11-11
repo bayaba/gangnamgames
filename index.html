@@ -33,6 +33,16 @@
             pointer-events: none;
         }
         
+        /* 나무 공통 스타일 */
+        .tree {
+            position: fixed;
+            background-size: contain;
+            background-repeat: no-repeat;
+            pointer-events: none;
+            bottom: 88px; /* land 바로 위 */
+            z-index: 4;
+        }
+        
         /* 땅 레이어 */
         .tiled-land {
             position: fixed; 
@@ -81,16 +91,26 @@
     <script>
         // 구름 설정 (작을수록 느리게)
         const cloudTypes = [
-            { img: 'cloud3.png', width: 80,  height: 50,  speed: 40,  zIndex: 1 },  // 작은구름 - 가장 느림
-            { img: 'cloud2.png', width: 120, height: 75,  speed: 25,  zIndex: 1 },  // 중간구름
-            { img: 'cloud1.png', width: 160, height: 100, speed: 15,  zIndex: 1 }   // 큰구름 - 가장 빠름
+            { img: 'cloud3.png', width: 80,  height: 50,  speed: 40,  zIndex: 1 },
+            { img: 'cloud2.png', width: 120, height: 75,  speed: 25,  zIndex: 1 },
+            { img: 'cloud1.png', width: 160, height: 100, speed: 15,  zIndex: 1 }
         ];
 
+        // 나무 설정 (모두 동일한 land 속도)
+        const treeTypes = [
+            { img: 'tree1.png', width: 100, height: 150 },
+            { img: 'tree2.png', width: 120, height: 180 },
+            { img: 'tree3.png', width: 90,  height: 140 },
+            { img: 'tree4.png', width: 110, height: 160 }
+        ];
+
+        // land 속도: 20초에 768px = 16ms마다 0.6144px
+        const LAND_SPEED = 16; // ms
+        const LAND_MOVE_PX = 0.6144; // px per frame
+
         function createCloud() {
-            // 랜덤 구름 타입 선택
             const type = cloudTypes[Math.floor(Math.random() * cloudTypes.length)];
             
-            // 구름 div 생성
             const cloud = document.createElement('div');
             cloud.className = 'cloud';
             cloud.style.backgroundImage = `url('${type.img}')`;
@@ -98,16 +118,11 @@
             cloud.style.height = type.height + 'px';
             cloud.style.zIndex = type.zIndex;
             
-            // 랜덤 Y 위치 (상단 20% ~ 60% 사이)
             const randomY = Math.random() * 40 + 20;
             cloud.style.top = randomY + '%';
-            
-            // 시작 위치: 화면 오른쪽 바깥
             cloud.style.left = window.innerWidth + 'px';
             
             document.body.appendChild(cloud);
-            
-            // 애니메이션
             animateCloud(cloud, type.speed);
         }
 
@@ -118,12 +133,42 @@
                 position -= 1;
                 cloud.style.left = position + 'px';
                 
-                // 화면 왼쪽 바깥으로 나가면 삭제
                 if (position < -200) {
                     clearInterval(move);
                     cloud.remove();
                 }
             }, speed);
+        }
+
+        function createTree() {
+            const type = treeTypes[Math.floor(Math.random() * treeTypes.length)];
+            
+            const tree = document.createElement('div');
+            tree.className = 'tree';
+            tree.style.backgroundImage = `url('${type.img}')`;
+            tree.style.width = type.width + 'px';
+            tree.style.height = type.height + 'px';
+            
+            // 시작 위치: 화면 오른쪽 바깥
+            tree.style.left = window.innerWidth + 'px';
+            
+            document.body.appendChild(tree);
+            animateTree(tree);
+        }
+
+        function animateTree(tree) {
+            let position = window.innerWidth;
+            
+            const move = setInterval(() => {
+                position -= LAND_MOVE_PX;
+                tree.style.left = position + 'px';
+                
+                // 화면 왼쪽 바깥으로 나가면 삭제
+                if (position < -200) {
+                    clearInterval(move);
+                    tree.remove();
+                }
+            }, LAND_SPEED);
         }
 
         // 초기 구름 생성 (3~5개)
@@ -136,6 +181,17 @@
         setInterval(() => {
             createCloud();
         }, Math.random() * 5000 + 5000);
+
+        // 초기 나무 생성 (1~3개)
+        const initialTrees = Math.floor(Math.random() * 3) + 1;
+        for (let i = 0; i < initialTrees; i++) {
+            setTimeout(() => createTree(), i * 1500);
+        }
+
+        // 주기적으로 새 나무 생성 (3~7초마다)
+        setInterval(() => {
+            createTree();
+        }, Math.random() * 4000 + 3000);
     </script>
 </body>
 </html>
