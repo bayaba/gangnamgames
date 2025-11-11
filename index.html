@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>강남게임즈2</title>
+    <title>강남게임즈</title>
     <style>
+        /* ★★★ body의 margin: 40px 삭제 ★★★ */
         body { 
             font-family: sans-serif; 
-            margin: 40px; 
+            margin: 0; /* body 여백을 0으로 초기화 */
             background-image: url('background.png');
             background-size: cover;
             background-repeat: no-repeat;
@@ -23,23 +24,26 @@
             text-shadow: 2px 2px 4px #000000;
             position: relative;
             z-index: 10;
+            padding-top: 40px; /* ★★★ body의 margin 대신 padding으로 대체 */
         }
 
         /* ★★★ 유튜브 영상 컨테이너 (수정됨) ★★★ */
         .video-container {
             position: relative;
             z-index: 9; 
-            margin-bottom: 10px;
             
-            /* ★★★ 폰에서는 90% 너비, PC에서는 최대 420px ★★★ */
+            /* 1. 폰에서는 가로 90% 너비 (좌우 여백 5%씩) */
             width: 90%; 
+            /* 2. PC에서는 최대 420px 고정 */
             max-width: 420px; 
             
-            margin-left: auto;  /* 가운데 정렬 */
-            margin-right: auto; /* 가운데 정렬 */
+            /* 3. margin: auto로 화면 중앙 정렬 */
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 10px;
 
-            /* 영상 16:9 비율 유지 */
-            padding-top: 56.19%; /* ( 236 / 420 ) * 100 */
+            /* 4. 16:9 비율 유지 ( (9/16)*100 = 56.25% ) */
+            padding-top: 56.25%; 
             height: 0; 
         }
         
@@ -129,7 +133,7 @@
 
     <div class="video-container">
         <iframe 
-            src="https://www.youtube.com/embed/fVpLeLf1vSo?autoplay=1&mute=1" 
+            src="https://www.youtube.com/embed/fVpLeLf1vSo?autoplay=1&mute=1&vq=hd1080" 
             title="YouTube video player" 
             frameborder="0" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
