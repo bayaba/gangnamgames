@@ -25,24 +25,22 @@
             text-shadow: 2px 2px 4px #000000;
         }
 
-        /* 3. land.png (땅) 스타일 - ★ 48px 수정 */
+        /* 3. land.png (땅) 스타일 - ★★★ 수정됨 */
         .tiled-land {
             position: fixed; 
-            bottom: 0; /* 맨 아래 */
+            bottom: 0; /* 맨 아래 고정 */
             left: 0;
             width: 100%;
             height: 88px; /* land.png 높이 */
             background-image: url('land.png');
             background-repeat: repeat-x; 
+            background-size: 48px 88px; /* land.png 원본 48x88 */
             
-            /* ★★★ land.png 너비(48px)와 높이(88px) 고정 */
-            background-size: 48px 88px; 
-            
-            /* 10% 빠른 27초 애니메이션 */
+            /* ★★★ 산(30초)보다 10% 빠른 27초로 수정 */
             animation: slide-land-left 27s linear infinite;
         }
 
-        /* 4. mountain.png (산) 스타일 - ★ "튀는 현상" 수정 */
+        /* 4. mountain.png (산) 스타일 - ★★★ 수정됨 */
         .scrolling-mountain {
             position: fixed; 
             bottom: 88px; /* 땅(88px) 바로 위 */
@@ -50,51 +48,32 @@
             width: 100%; 
             height: 150px; /* mountain.png 높이 */
             
-            /* ★★★ 중요: 자식 요소가 부모를 벗어나도 숨김 처리 */
-            overflow: hidden; 
-            
-            /* ★★★ 배경 이미지를 ::before 가상 요소로 이동시킴 */
-        }
-        
-        /* ★★★ "튀는 현상"을 해결하기 위해 가상 요소(::before) 사용 */
-        .scrolling-mountain::before {
-            content: ''; /* 가상 요소 필수 속성 */
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 150px; /* 부모와 동일한 높이 */
-            
-            /* ★★★ 너비를 이미지 2개 크기(768px * 2 = 1536px)로 설정 */
-            /* 이렇게 하면 틈이 생길 틈이 없습니다. */
-            width: 1536px; 
-            
+            /* ★★★ 튀는 현상을 잡으려던 transform 방식을 제거하고, */
+            /* 안정적인 background-position 방식으로 되돌립니다. */
             background-image: url('mountain.png');
             background-repeat: repeat-x; 
             background-size: 768px 150px; /* 이미지 1개 크기 */
             
-            /* ★★★ 애니메이션을 transform으로 변경 */
+            /* ★★★ 30초 롤링 */
             animation: slide-mountain-left 30s linear infinite;
         }
 
-
-        /* 5. 산 롤링 (transform 방식) - ★ "튀는 현상" 수정 */
+        /* 5. 산 롤링 (30초, -768px) */
         @keyframes slide-mountain-left {
             0% {
-                transform: translateX(0);
+                background-position: 0 0;
             }
             100% {
-                /* ★★★ 이미지 1개 너비(768px)만큼 왼쪽으로 이동 */
-                transform: translateX(-768px); 
+                background-position: -768px 0; 
             }
         }
         
-        /* 6. 땅 롤링 (background-position 방식) - ★ 48px 수정 */
+        /* 6. 땅 롤링 (27초, -48px) */
         @keyframes slide-land-left {
             0% {
                 background-position: 0 0;
             }
             100% {
-                /* ★★★ land.png 원본 너비 48px */
                 background-position: -48px 0; 
             }
         }
