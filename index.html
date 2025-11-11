@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>강남게임즈2</title>
+    <title>강남게임즈</title>
     <style>
         body { 
             font-family: sans-serif; 
@@ -26,7 +26,6 @@
             padding-top: 40px;
         }
 
-        /* ★★★ 유튜브 영상 컨테이너 (수정됨) ★★★ */
         .video-container {
             position: relative;
             z-index: 9; 
@@ -35,15 +34,10 @@
             max-width: 420px; 
             margin-left: auto;
             margin-right: auto;
-
-            /* ★★★ 'padding-top'과 'height: 0'을 삭제하고
-                   'aspect-ratio' (종횡비)로 교체합니다. ★★★ */
-            aspect-ratio: 16 / 9; /* 16:9 비율을 강제합니다. */
+            aspect-ratio: 16 / 9; 
         }
         
-        /* ★★★ iframe 스타일 (수정됨) ★★★ */
         .video-container iframe {
-            /* 'position: absolute' 관련 속성을 모두 삭제합니다. */
             width: 100%;
             height: 100%;
         }
@@ -81,6 +75,16 @@
             background-repeat: no-repeat;
             background-size: 162px 45px;
             image-rendering: pixelated;
+        }
+
+        .parachute {
+            position: fixed;
+            pointer-events: none;
+            width: 108px;
+            height: 93px;
+            background-size: 100% 100%;
+            image-rendering: pixelated;
+            z-index: 3; 
         }
         
         .tiled-land {
@@ -157,9 +161,19 @@
             'cat4.png'
         ];
 
+        const parachuteTypes = [
+            'parachute1.png', 'parachute2.png', 'parachute3.png', 'parachute4.png',
+            'parachute5.png', 'parachute6.png', 'parachute7.png', 'parachute8.png'
+        ];
+
         const LAND_SPEED = 16;
         const LAND_MOVE_PX = 0.6144;
         const CAT_SPEED = 0.5; 
+
+        // ★★★ 낙하산 속도 수정 (1:2 비율) ★★★
+        const PARACHUTE_SPEED_X = 1.0; // 오른쪽 1
+        const PARACHUTE_SPEED_Y = 2.0; // 아래 2
+        const PARACHUTE_INTERVAL = 20; // 20ms마다 이동
 
         function createCloud(startPosition = null) {
             const type = cloudTypes[Math.floor(Math.random() * cloudTypes.length)];
@@ -287,6 +301,42 @@
             }, 20);
         }
 
+        function createParachute(startX = null, startY = null) {
+            const parachuteSrc = parachuteTypes[Math.floor(Math.random() * parachuteTypes.length)];
+            
+            const parachute = document.createElement('div');
+            parachute.className = 'parachute';
+            parachute.style.backgroundImage = `url('${parachuteSrc}')`;
+
+            const screenWidth = window.innerWidth;
+            const topPos = startY !== null ? startY : -100;
+            const leftPos = startX !== null ? startX : (Math.random() * (screenWidth * 2) - screenWidth);
+            
+            parachute.style.top = topPos + 'px';
+            parachute.style.left = leftPos + 'px';
+            
+            document.body.appendChild(parachute);
+            animateParachute(parachute);
+        }
+
+        function animateParachute(parachute) {
+            let positionX = parseFloat(parachute.style.left);
+            let positionY = parseFloat(parachute.style.top);
+            
+            const move = setInterval(() => {
+                positionX += PARACHUTE_SPEED_X;
+                positionY += PARACHUTE_SPEED_Y;
+                
+                parachute.style.left = positionX + 'px';
+                parachute.style.top = positionY + 'px';
+                
+                if (positionY > window.innerHeight + 100) {
+                    clearInterval(move);
+                    parachute.remove();
+                }
+            }, PARACHUTE_INTERVAL);
+        }
+
         function scheduleNextTree() {
             const nextDelay = Math.random() * 5000 + 1000;
             setTimeout(() => {
@@ -311,6 +361,14 @@
             }, nextDelay);
         }
 
+        function scheduleNextParachute() {
+            const nextDelay = Math.random() * 5000 + 3000; // 3~8초마다 1개씩
+            setTimeout(() => {
+                createParachute();
+                scheduleNextParachute();
+            }, nextDelay);
+        }
+
         // --- 초기화 ---
         
         const initialClouds = Math.floor(Math.random() * 4) + 5;
@@ -331,9 +389,18 @@
             createCat(randomX);
         }
 
+        const initialParachutes = 5; 
+        for (let i = 0; i < initialParachutes; i++) {
+            const randomX = Math.random() * (window.innerWidth * 2) - window.innerWidth;
+            const randomY = Math.random() * -600 - 100; 
+            createParachute(randomX, randomY);
+        }
+
+        // 스케줄러 시작
         scheduleNextCloud();
         scheduleNextTree();
         scheduleNextCat();
+        scheduleNextParachute();
     </script>
 </body>
 </html>
