@@ -5,12 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>내 영상 모음</title>
     <style>
-        /* 간단한 스타일링 */
-        body { font-family: sans-serif; margin: 40px; background-color: #f4f4f4; }
-        h1 { color: #333; }
-        .video-wrapper {
-            margin-bottom: 20px;
-        }
+    body { 
+        font-family: sans-serif; 
+        margin: 40px; 
+
+        /* --- 이 부분을 추가하세요 --- */
+        background-image: url('background.png');
+        background-size: cover; /* 이미지가 화면을 꽉 채우도록 함 */
+        background-repeat: no-repeat; /* 이미지가 반복되지 않도록 함 */
+        background-attachment: fixed; /* 스크롤해도 배경이 고정됨 */
+    }
+    h1 { color: #333; }
     </style>
 </head>
 <body>
@@ -38,4 +43,5 @@
     </div>
 
 </body>
+
 </html>
