@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <title>강남게임즈2</title>
-
     <style>
-        /* 1. 기본 배경화면 스타일 */
         body { 
             font-family: sans-serif; 
             margin: 40px; 
@@ -15,74 +13,72 @@
             background-size: cover;
             background-repeat: no-repeat;
             background-attachment: fixed;
-            padding-bottom: 250px; /* 하단 여백 */
+            padding-bottom: 250px;
         }
-
-        /* 2. 메인 제목 스타일 */
+        
         h1 { 
             color: #FFFFFF;
             text-align: center;
             text-shadow: 2px 2px 4px #000000;
         }
-
-        /* 3. land.png (땅) 스타일 - ★★★ 수정됨 */
+        
+        /* 땅 레이어 */
         .tiled-land {
             position: fixed; 
-            bottom: 0; /* 맨 아래 고정 */
+            bottom: 0;
             left: 0;
             width: 100%;
-            height: 88px; /* land.png 높이 */
+            height: 88px;
             background-image: url('land.png');
             background-repeat: repeat-x; 
-            background-size: 48px 88px; /* land.png 원본 48x88 */
+            background-size: 48px 88px;
+            z-index: 2; /* 산보다 앞에 */
             
-            /* ★★★ 산보다 10% 빠른 속도를 위해 1.7초로 수정 */
-            animation: slide-land-left 1.7s linear infinite;
+            /* mountain(30초)의 1.3배 속도 = 23.08초 */
+            animation: slide-land-left 23.08s linear infinite;
         }
-
-        /* 4. mountain.png (산) 스타일 */
+        
+        /* 산 레이어 */
         .scrolling-mountain {
             position: fixed; 
-            bottom: 88px; /* 땅(88px) 바로 위 */
+            bottom: 88px;
             left: 0;
             width: 100%; 
-            height: 150px; /* mountain.png 높이 */
+            height: 150px;
             background-image: url('mountain.png');
             background-repeat: repeat-x; 
-            background-size: 768px 150px; /* 이미지 1개 크기 */
+            background-size: 768px 150px;
+            z-index: 1; /* 땅보다 뒤에 */
             
-            /* 30초 롤링 */
             animation: slide-mountain-left 30s linear infinite;
         }
-
-        /* 5. 산 롤링 (30초, -768px) */
+        
+        /* 산 애니메이션 */
         @keyframes slide-mountain-left {
-            0% {
+            from {
                 background-position: 0 0;
             }
-            100% {
+            to {
                 background-position: -768px 0; 
             }
         }
         
-        /* 6. 땅 롤링 (1.7초, -48px) */
+        /* 땅 애니메이션 */
         @keyframes slide-land-left {
-            0% {
+            from {
                 background-position: 0 0;
             }
-            100% {
+            to {
                 background-position: -48px 0; 
             }
         }
     </style>
 </head>
 <body>
-
     <h1>강남게임즈</h1>
-
-    <div class="tiled-land"></div>
+    
+    <!-- 순서 중요: mountain → land -->
     <div class="scrolling-mountain"></div>
-
+    <div class="tiled-land"></div>
 </body>
 </html>
-
