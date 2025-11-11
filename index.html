@@ -14,12 +14,23 @@
             background-repeat: no-repeat;
             background-attachment: fixed;
             padding-bottom: 250px;
+            overflow: hidden;
         }
         
         h1 { 
             color: #FFFFFF;
             text-align: center;
             text-shadow: 2px 2px 4px #000000;
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* 구름 공통 스타일 */
+        .cloud {
+            position: fixed;
+            background-size: contain;
+            background-repeat: no-repeat;
+            pointer-events: none;
         }
         
         /* 땅 레이어 */
@@ -32,9 +43,7 @@
             background-image: url('land.png');
             background-repeat: repeat-x; 
             background-size: 48px 88px;
-            z-index: 2;
-            
-            /* mountain(30초)의 1.5배 속도 = 20초 */
+            z-index: 3;
             animation: slide-land-left 20s linear infinite;
         }
         
@@ -48,29 +57,18 @@
             background-image: url('mountain.png');
             background-repeat: repeat-x; 
             background-size: 768px 150px;
-            z-index: 1;
-            
+            z-index: 2;
             animation: slide-mountain-left 30s linear infinite;
         }
         
-        /* 산 애니메이션 */
         @keyframes slide-mountain-left {
-            from {
-                background-position: 0 0;
-            }
-            to {
-                background-position: -768px 0; 
-            }
+            from { background-position: 0 0; }
+            to { background-position: -768px 0; }
         }
         
-        /* 땅 애니메이션 - 거리 수정! */
         @keyframes slide-land-left {
-            from {
-                background-position: 0 0;
-            }
-            to {
-                background-position: -768px 0;  /* -48px → -768px */
-            }
+            from { background-position: 0 0; }
+            to { background-position: -768px 0; }
         }
     </style>
 </head>
@@ -79,5 +77,65 @@
     
     <div class="scrolling-mountain"></div>
     <div class="tiled-land"></div>
+
+    <script>
+        // 구름 설정 (작을수록 느리게)
+        const cloudTypes = [
+            { img: 'cloud3.png', width: 80,  height: 50,  speed: 40,  zIndex: 1 },  // 작은구름 - 가장 느림
+            { img: 'cloud2.png', width: 120, height: 75,  speed: 25,  zIndex: 1 },  // 중간구름
+            { img: 'cloud1.png', width: 160, height: 100, speed: 15,  zIndex: 1 }   // 큰구름 - 가장 빠름
+        ];
+
+        function createCloud() {
+            // 랜덤 구름 타입 선택
+            const type = cloudTypes[Math.floor(Math.random() * cloudTypes.length)];
+            
+            // 구름 div 생성
+            const cloud = document.createElement('div');
+            cloud.className = 'cloud';
+            cloud.style.backgroundImage = `url('${type.img}')`;
+            cloud.style.width = type.width + 'px';
+            cloud.style.height = type.height + 'px';
+            cloud.style.zIndex = type.zIndex;
+            
+            // 랜덤 Y 위치 (상단 20% ~ 60% 사이)
+            const randomY = Math.random() * 40 + 20;
+            cloud.style.top = randomY + '%';
+            
+            // 시작 위치: 화면 오른쪽 바깥
+            cloud.style.left = window.innerWidth + 'px';
+            
+            document.body.appendChild(cloud);
+            
+            // 애니메이션
+            animateCloud(cloud, type.speed);
+        }
+
+        function animateCloud(cloud, speed) {
+            let position = window.innerWidth;
+            
+            const move = setInterval(() => {
+                position -= 1;
+                cloud.style.left = position + 'px';
+                
+                // 화면 왼쪽 바깥으로 나가면 삭제
+                if (position < -200) {
+                    clearInterval(move);
+                    cloud.remove();
+                }
+            }, speed);
+        }
+
+        // 초기 구름 생성 (3~5개)
+        const initialClouds = Math.floor(Math.random() * 3) + 3;
+        for (let i = 0; i < initialClouds; i++) {
+            setTimeout(() => createCloud(), i * 2000);
+        }
+
+        // 주기적으로 새 구름 생성 (5~10초마다)
+        setInterval(() => {
+            createCloud();
+        }, Math.random() * 5000 + 5000);
+    </script>
 </body>
 </html>
