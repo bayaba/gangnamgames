@@ -32,10 +32,10 @@
             background-image: url('land.png');
             background-repeat: repeat-x; 
             background-size: 48px 88px;
-            z-index: 2; /* 산보다 앞에 */
+            z-index: 2;
             
-            /* mountain(30초)의 1.3배 속도 = 23.08초 */
-            animation: slide-land-left 23.08s linear infinite;
+            /* mountain(30초)의 1.5배 속도 = 20초 */
+            animation: slide-land-left 20s linear infinite;
         }
         
         /* 산 레이어 */
@@ -48,7 +48,7 @@
             background-image: url('mountain.png');
             background-repeat: repeat-x; 
             background-size: 768px 150px;
-            z-index: 1; /* 땅보다 뒤에 */
+            z-index: 1;
             
             animation: slide-mountain-left 30s linear infinite;
         }
@@ -77,7 +77,6 @@
 <body>
     <h1>강남게임즈</h1>
     
-    <!-- 순서 중요: mountain → land -->
     <div class="scrolling-mountain"></div>
     <div class="tiled-land"></div>
 </body>
