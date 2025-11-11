@@ -1,295 +1,83 @@
-using UnityEngine;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
-public class SpriteGauge : MonoBehaviour
-{
-    [Header("자식 스프라이트 렌더러")]
-    [SerializeField]
-    private SpriteRenderer targetRenderer;
-
-    [Header("게이지 값 매핑")]
-    [Tooltip("TargetValue가 0일 때의 CurrentValue")]
-    [SerializeField]
-    private float minValue = 0f;
-
-    [Tooltip("TargetValue가 100일 때의 CurrentValue")]
-    [SerializeField]
-    private float maxValue = 100f;
-
-    [Header("게이지 입력 값 (0-100)")]
-    [Range(0f, 100f)]
-    [SerializeField]
-    private float _targetValue = 100f;
-
-    public float TargetValue
-    {
-        get => _targetValue;
-        set
-        {
-            _targetValue = Mathf.Clamp(value, 0f, 100f);
-            UpdateGauge();
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>강남게임즈2</title>
+    <style>
+        body { 
+            font-family: sans-serif; 
+            margin: 40px; 
+            background-image: url('background.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            padding-bottom: 250px;
         }
-    }
-
-    public float CurrentValue { get; private set; }
-
-    private float _cachedFullWidth;
-    private float _cachedLeftEdgeLocalX;
-    private float _cachedLocalY;
-    private float _cachedLocalZ;
-    private float _cachedFullWidthLocalX;
-    private bool _isInitialized = false;
-
-    void Awake()
-    {
-        if (targetRenderer == null)
-        {
-            targetRenderer = GetComponentInChildren<SpriteRenderer>();
+        
+        h1 { 
+            color: #FFFFFF;
+            text-align: center;
+            text-shadow: 2px 2px 4px #000000;
         }
-    }
-
-    void Start()
-    {
-        Initialize();
-    }
-
-    private void Initialize()
-    {
-        if (targetRenderer == null)
-        {
-            Debug.LogError("SpriteGauge: TargetRenderer가 할당되지 않았습니다!", this);
-            _isInitialized = false;
-            return;
+        
+        /* 땅 레이어 */
+        .tiled-land {
+            position: fixed; 
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 88px;
+            background-image: url('land.png');
+            background-repeat: repeat-x; 
+            background-size: 48px 88px;
+            z-index: 2;
+            
+            /* mountain(30초)의 1.5배 속도 = 20초 */
+            animation: slide-land-left 20s linear infinite;
         }
-
-        if (targetRenderer.drawMode != SpriteDrawMode.Sliced)
-        {
-            Debug.LogWarning("SpriteGauge: Draw Mode가 'Sliced'가 아닙니다.", this);
+        
+        /* 산 레이어 */
+        .scrolling-mountain {
+            position: fixed; 
+            bottom: 88px;
+            left: 0;
+            width: 100%; 
+            height: 150px;
+            background-image: url('mountain.png');
+            background-repeat: repeat-x; 
+            background-size: 768px 150px;
+            z-index: 1;
+            
+            animation: slide-mountain-left 30s linear infinite;
         }
-
-        _cachedFullWidth = targetRenderer.size.x;
-
-        Vector3 initialLocalPos = targetRenderer.transform.localPosition;
-        _cachedFullWidthLocalX = initialLocalPos.x;
-        _cachedLocalY = initialLocalPos.y;
-        _cachedLocalZ = initialLocalPos.z;
-
-        _cachedLeftEdgeLocalX = _cachedFullWidthLocalX - (_cachedFullWidth / 2f);
-
-        _isInitialized = true;
-
-        UpdateGauge();
-    }
-
-    private void UpdateGauge()
-    {
-        float percent = _targetValue / 100f;
-        CurrentValue = Mathf.Lerp(minValue, maxValue, percent);
-
-        if (_isInitialized)
-        {
-            UpdateVisuals(percent);
-        }
-    }
-
-    private void UpdateVisuals(float percent)
-    {
-        float newWidth = _cachedFullWidth * percent;
-
-        targetRenderer.size = new Vector2(newWidth, targetRenderer.size.y);
-
-        float newLocalPositionX = _cachedLeftEdgeLocalX + (newWidth / 2f);
-
-        targetRenderer.transform.localPosition = new Vector3(
-            newLocalPositionX,
-            _cachedLocalY,
-            _cachedLocalZ
-        );
-    }
-
-    void OnValidate()
-    {
-        _targetValue = Mathf.Clamp(_targetValue, 0f, 100f);
-
-        float percent = _targetValue / 100f;
-        CurrentValue = Mathf.Lerp(minValue, maxValue, percent);
-
-        if (Application.isPlaying && _isInitialized)
-        {
-            UpdateVisuals(percent);
-        }
-    }
-
-    public void SetValue(float value)
-    {
-        TargetValue = Mathf.Clamp(value / maxValue * 100f, 0f, 100f);
-    }
-
-    public void SetRatio(float ratio)
-    {
-        TargetValue = Mathf.Clamp01(ratio) * 100f;
-    }
-
-#if UNITY_EDITOR
-    public void EditorSetValue(float targetValue)
-    {
-        if (targetRenderer == null)
-        {
-            targetRenderer = GetComponentInChildren<SpriteRenderer>();
-        }
-
-        if (targetRenderer == null)
-        {
-            Debug.LogError("TargetRenderer가 없습니다!");
-            return;
-        }
-
-        if (!_isInitialized)
-        {
-            _cachedFullWidth = targetRenderer.size.x;
-            Vector3 initialLocalPos = targetRenderer.transform.localPosition;
-            _cachedFullWidthLocalX = initialLocalPos.x;
-            _cachedLocalY = initialLocalPos.y;
-            _cachedLocalZ = initialLocalPos.z;
-            _cachedLeftEdgeLocalX = _cachedFullWidthLocalX - (_cachedFullWidth / 2f);
-            _isInitialized = true;
-        }
-
-        _targetValue = Mathf.Clamp(targetValue, 0f, 100f);
-        float percent = _targetValue / 100f;
-        CurrentValue = Mathf.Lerp(minValue, maxValue, percent);
-
-        UpdateVisuals(percent);
-
-        EditorUtility.SetDirty(targetRenderer);
-        EditorUtility.SetDirty(this);
-    }
-#endif
-}
-
-#if UNITY_EDITOR
-[CustomEditor(typeof(SpriteGauge))]
-public class SpriteGaugeEditor : Editor
-{
-    private SpriteGauge gauge;
-    private SerializedProperty minValueProp;
-    private SerializedProperty maxValueProp;
-    private SerializedProperty targetRendererProp;
-
-    private void OnEnable()
-    {
-        gauge = (SpriteGauge)target;
-        minValueProp = serializedObject.FindProperty("minValue");
-        maxValueProp = serializedObject.FindProperty("maxValue");
-        targetRendererProp = serializedObject.FindProperty("targetRenderer");
-    }
-
-    public override void OnInspectorGUI()
-    {
-        serializedObject.Update();
-
-        DrawDefaultInspector();
-
-        EditorGUILayout.Space(10);
-        EditorGUILayout.LabelField("━━━━━━━━━━━━━━━━━━━━━━━━━━━━", EditorStyles.boldLabel);
-        EditorGUILayout.LabelField("실시간 테스트", EditorStyles.boldLabel);
-        EditorGUILayout.Space(5);
-
-        if (targetRendererProp.objectReferenceValue == null)
-        {
-            EditorGUILayout.HelpBox("Target Renderer가 할당되지 않았습니다!", MessageType.Error);
-            serializedObject.ApplyModifiedProperties();
-            return;
-        }
-
-        SpriteRenderer sr = targetRendererProp.objectReferenceValue as SpriteRenderer;
-        if (sr.sprite == null)
-        {
-            EditorGUILayout.HelpBox("Sprite가 할당되지 않았습니다!", MessageType.Error);
-            serializedObject.ApplyModifiedProperties();
-            return;
-        }
-
-        if (sr.drawMode == SpriteDrawMode.Simple)
-        {
-            EditorGUILayout.HelpBox("Draw Mode를 Sliced로 변경하세요!", MessageType.Warning);
-            if (GUILayout.Button("Sliced로 변경"))
-            {
-                sr.drawMode = SpriteDrawMode.Sliced;
-                EditorUtility.SetDirty(sr);
+        
+        /* 산 애니메이션 */
+        @keyframes slide-mountain-left {
+            from {
+                background-position: 0 0;
+            }
+            to {
+                background-position: -768px 0; 
             }
         }
-
-        EditorGUILayout.Space(5);
-
-        EditorGUILayout.BeginVertical("box");
-        {
-            EditorGUILayout.LabelField("게이지 테스트 (0-100)", EditorStyles.boldLabel);
-
-            EditorGUI.BeginChangeCheck();
-            float newValue = EditorGUILayout.Slider("Test Value", gauge.TargetValue, 0f, 100f);
-
-            if (EditorGUI.EndChangeCheck())
-            {
-                gauge.EditorSetValue(newValue);
-                SceneView.RepaintAll();
+        
+        /* 땅 애니메이션 - 거리 수정! */
+        @keyframes slide-land-left {
+            from {
+                background-position: 0 0;
             }
-
-            EditorGUILayout.Space(5);
-
-            EditorGUILayout.BeginHorizontal();
-            {
-                if (GUILayout.Button("0%", GUILayout.Height(25)))
-                {
-                    gauge.EditorSetValue(0f);
-                    SceneView.RepaintAll();
-                }
-                if (GUILayout.Button("25%", GUILayout.Height(25)))
-                {
-                    gauge.EditorSetValue(25f);
-                    SceneView.RepaintAll();
-                }
-                if (GUILayout.Button("50%", GUILayout.Height(25)))
-                {
-                    gauge.EditorSetValue(50f);
-                    SceneView.RepaintAll();
-                }
-                if (GUILayout.Button("75%", GUILayout.Height(25)))
-                {
-                    gauge.EditorSetValue(75f);
-                    SceneView.RepaintAll();
-                }
-                if (GUILayout.Button("100%", GUILayout.Height(25)))
-                {
-                    gauge.EditorSetValue(100f);
-                    SceneView.RepaintAll();
-                }
+            to {
+                background-position: -768px 0;  /* -48px → -768px */
             }
-            EditorGUILayout.EndHorizontal();
         }
-        EditorGUILayout.EndVertical();
-
-        EditorGUILayout.Space(5);
-
-        EditorGUILayout.BeginVertical("box");
-        {
-            EditorGUILayout.LabelField("현재 상태", EditorStyles.boldLabel);
-            EditorGUILayout.LabelField($"Mapped Range: {minValueProp.floatValue:F1} ~ {maxValueProp.floatValue:F1}");
-            EditorGUILayout.LabelField($"Target Value: {gauge.TargetValue:F1}% (0-100)");
-            EditorGUILayout.LabelField($"Current Value: {gauge.CurrentValue:F2} (mapped)");
-            EditorGUILayout.LabelField($"Sprite Size: {sr.size.x:F2} x {sr.size.y:F2}");
-        }
-        EditorGUILayout.EndVertical();
-
-        serializedObject.ApplyModifiedProperties();
-
-        if (GUI.changed)
-        {
-            EditorUtility.SetDirty(target);
-        }
-    }
-}
-#endif
+    </style>
+</head>
+<body>
+    <h1>강남게임즈</h1>
+    
+    <div class="scrolling-mountain"></div>
+    <div class="tiled-land"></div>
+</body>
+</html>
