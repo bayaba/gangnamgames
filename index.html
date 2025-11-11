@@ -140,7 +140,7 @@
             }, speed);
         }
 
-        function createTree() {
+        function createTree(startPosition = null) {
             const treeSrc = treeTypes[Math.floor(Math.random() * treeTypes.length)];
             
             const tree = document.createElement('div');
@@ -150,14 +150,15 @@
             img.src = treeSrc;
             tree.appendChild(img);
             
-            tree.style.left = window.innerWidth + 'px';
+            // startPosition이 있으면 그 위치에서, 없으면 오른쪽 바깥에서 시작
+            tree.style.left = (startPosition !== null ? startPosition : window.innerWidth) + 'px';
             
             document.body.appendChild(tree);
             animateTree(tree);
         }
 
         function animateTree(tree) {
-            let position = window.innerWidth;
+            let position = parseInt(tree.style.left);
             
             const move = setInterval(() => {
                 position -= LAND_MOVE_PX;
@@ -170,23 +171,36 @@
             }, LAND_SPEED);
         }
 
+        function scheduleNextTree() {
+            // 더 랜덤한 간격: 1~6초
+            const nextDelay = Math.random() * 5000 + 1000;
+            setTimeout(() => {
+                createTree();
+                scheduleNextTree();
+            }, nextDelay);
+        }
+
+        // 초기 구름 생성
         const initialClouds = Math.floor(Math.random() * 3) + 3;
         for (let i = 0; i < initialClouds; i++) {
             setTimeout(() => createCloud(), i * 2000);
         }
 
+        // 주기적으로 새 구름 생성
         setInterval(() => {
             createCloud();
         }, Math.random() * 5000 + 5000);
 
-        const initialTrees = Math.floor(Math.random() * 3) + 1;
+        // 초기 나무 생성 (화면 안에 랜덤 배치, 7~12개)
+        const initialTrees = Math.floor(Math.random() * 6) + 7;
         for (let i = 0; i < initialTrees; i++) {
-            setTimeout(() => createTree(), i * 1500);
+            // 화면 너비 안에 랜덤 배치
+            const randomX = Math.random() * window.innerWidth;
+            createTree(randomX);
         }
 
-        setInterval(() => {
-            createTree();
-        }, Math.random() * 4000 + 3000);
+        // 랜덤 간격으로 새 나무 생성 시작
+        scheduleNextTree();
     </script>
 </body>
 </html>
