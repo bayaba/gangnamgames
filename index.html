@@ -25,7 +25,6 @@
             z-index: 10;
         }
         
-        /* 구름 공통 스타일 */
         .cloud {
             position: fixed;
             background-size: contain;
@@ -33,21 +32,22 @@
             pointer-events: none;
         }
         
-        /* 나무 공통 스타일 */
         .tree {
             position: fixed;
             pointer-events: none;
-            bottom: 88px; /* land 높이 */
+            bottom: 88px;
             z-index: 4;
+            width: 150px;
+            height: 170px;
         }
         
         .tree img {
             display: block;
-            width: auto;
-            height: auto;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
         
-        /* 땅 레이어 */
         .tiled-land {
             position: fixed; 
             bottom: 0;
@@ -61,7 +61,6 @@
             animation: slide-land-left 20s linear infinite;
         }
         
-        /* 산 레이어 */
         .scrolling-mountain {
             position: fixed; 
             bottom: 88px;
@@ -93,14 +92,12 @@
     <div class="tiled-land"></div>
 
     <script>
-        // 구름 설정
         const cloudTypes = [
             { img: 'cloud3.png', width: 80,  height: 50,  speed: 40,  zIndex: 1 },
             { img: 'cloud2.png', width: 120, height: 75,  speed: 25,  zIndex: 1 },
             { img: 'cloud1.png', width: 160, height: 100, speed: 15,  zIndex: 1 }
         ];
 
-        // 나무 설정 (원본 크기 유지)
         const treeTypes = [
             'tree1.png',
             'tree2.png',
@@ -149,7 +146,6 @@
             const tree = document.createElement('div');
             tree.className = 'tree';
             
-            // img 태그 사용으로 원본 크기 유지
             const img = document.createElement('img');
             img.src = treeSrc;
             tree.appendChild(img);
@@ -174,24 +170,20 @@
             }, LAND_SPEED);
         }
 
-        // 초기 구름 생성
         const initialClouds = Math.floor(Math.random() * 3) + 3;
         for (let i = 0; i < initialClouds; i++) {
             setTimeout(() => createCloud(), i * 2000);
         }
 
-        // 주기적으로 새 구름 생성
         setInterval(() => {
             createCloud();
         }, Math.random() * 5000 + 5000);
 
-        // 초기 나무 생성
         const initialTrees = Math.floor(Math.random() * 3) + 1;
         for (let i = 0; i < initialTrees; i++) {
             setTimeout(() => createTree(), i * 1500);
         }
 
-        // 주기적으로 새 나무 생성
         setInterval(() => {
             createTree();
         }, Math.random() * 4000 + 3000);
