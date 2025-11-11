@@ -77,14 +77,15 @@
             image-rendering: pixelated;
         }
 
+        /* ★★★ 낙하산 CSS (크기, 레이어 수정) ★★★ */
         .parachute {
             position: fixed;
             pointer-events: none;
-            width: 108px;
-            height: 93px;
+            width: 93px;  /* 31px * 3 */
+            height: 108px; /* 36px * 3 */
             background-size: 100% 100%;
             image-rendering: pixelated;
-            z-index: 3; 
+            z-index: 6; /* ★★★ 나무(4), 고양이(5)보다 앞 */
         }
         
         .tiled-land {
@@ -170,10 +171,10 @@
         const LAND_MOVE_PX = 0.6144;
         const CAT_SPEED = 0.5; 
 
-        // ★★★ 낙하산 속도 수정 (1:2 비율) ★★★
-        const PARACHUTE_SPEED_X = 1.0; // 오른쪽 1
-        const PARACHUTE_SPEED_Y = 2.0; // 아래 2
-        const PARACHUTE_INTERVAL = 20; // 20ms마다 이동
+        // ★★★ 낙하산 속도 수정 (60% 감소) ★★★
+        const PARACHUTE_SPEED_X = 0.6; // (1.0 * 0.6)
+        const PARACHUTE_SPEED_Y = 1.2; // (2.0 * 0.6)
+        const PARACHUTE_INTERVAL = 20;
 
         function createCloud(startPosition = null) {
             const type = cloudTypes[Math.floor(Math.random() * cloudTypes.length)];
@@ -309,7 +310,7 @@
             parachute.style.backgroundImage = `url('${parachuteSrc}')`;
 
             const screenWidth = window.innerWidth;
-            const topPos = startY !== null ? startY : -100;
+            const topPos = startY !== null ? startY : -110; // 높이(108)보다 크게
             const leftPos = startX !== null ? startX : (Math.random() * (screenWidth * 2) - screenWidth);
             
             parachute.style.top = topPos + 'px';
@@ -330,7 +331,7 @@
                 parachute.style.left = positionX + 'px';
                 parachute.style.top = positionY + 'px';
                 
-                if (positionY > window.innerHeight + 100) {
+                if (positionY > window.innerHeight + 110) { // 108보다 크게
                     clearInterval(move);
                     parachute.remove();
                 }
@@ -362,7 +363,7 @@
         }
 
         function scheduleNextParachute() {
-            const nextDelay = Math.random() * 5000 + 3000; // 3~8초마다 1개씩
+            const nextDelay = Math.random() * 5000 + 3000;
             setTimeout(() => {
                 createParachute();
                 scheduleNextParachute();
@@ -392,7 +393,7 @@
         const initialParachutes = 5; 
         for (let i = 0; i < initialParachutes; i++) {
             const randomX = Math.random() * (window.innerWidth * 2) - window.innerWidth;
-            const randomY = Math.random() * -600 - 100; 
+            const randomY = Math.random() * -600 - 110; // -110 ~ -710
             createParachute(randomX, randomY);
         }
 
